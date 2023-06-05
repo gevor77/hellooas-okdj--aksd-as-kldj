@@ -23,6 +23,7 @@ class CommentController {
             res.status(400).json({message: `Comment  dosn't add ${e}`})
         }
     }
+    /////added comment
     async replyComment(req, res) {
         try {
             const comment = await Comment.find();
