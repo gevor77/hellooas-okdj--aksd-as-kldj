@@ -27,7 +27,7 @@ class PostController {
                         name: req.body.name,
                         description: req.body.description
                     }
-                })
+                });
                 return res.json({message: "Post updated "});
         } else {
             return res.json({message: "You can not updating this"});
@@ -36,6 +36,7 @@ class PostController {
             res.status(400).json({message: `Login error ${err}`})
         }
     }
+
     async getAllPost (req,res) {
         try {
             const posts = await Post.find();
@@ -48,15 +49,20 @@ class PostController {
         try {
             const requesteId = req.params.id;
             const {userId} = req;
-            const post = await Post.findOne( {_id: new ObjectId(req.params.id) });
-            console.log(post);
-            if(post) {
-                console.log('create new like');
-                await post.push({ user_id:userId, status:req.body.status});
-                console.log(post, userId);
-                return res.json(post);
+            const post = await Post.findOne({_id: new ObjectId(requesteId)});
+            if(post.postLikes.length == 0) {
+                    await post.postLikes.push({ user_id: new ObjectId(userId)});
+                    post.save()
+                    return res.json(post);
             } else {
-                console.log('hello post');
+                const postAddNew = await Post.find({_id: new ObjectId(requesteId), 'postLikes.user_id' : new ObjectId(userId)});
+                if(postAddNew == null || postAddNew.length == 0 ){
+                    await post.postLikes.push({ user_id: new ObjectId(userId)});
+                    post.save()
+                    return res.json(post);
+                } else {
+                    return res.json({message: `Unlike`});
+                }
             }
         } catch (err) {
             res.send(`Error ${err}`)

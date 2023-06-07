@@ -11,11 +11,7 @@ const postSchema = new mongoose.Schema({
         ref: 'User'
     },
     postLikes:  [{
-            user_id: mongoose.Schema.Types.ObjectId,
-            status: {
-                type: String,
-                default: 'unlike'
-            },
+            user_id: mongoose.Schema.Types.ObjectId
         }]
     
 })
