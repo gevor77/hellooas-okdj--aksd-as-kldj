@@ -13,9 +13,10 @@ router.get('/api/users',authenticate, controller.getUsers);
 router.post('/api/logout',middleware, controller.logout);
 router.post('/api/add-comment/:postId',authenticate, commController.addComment);
 router.get('/api/comments',authenticate, commController.replyComment);
-router.post('/api/add-post', postConntrol.createNewPost);
+router.post('/api/add-post',authenticate, postConntrol.createNewPost);
 router.post('/api/edit-post/:id', postConntrol.postEdit);
-router.get('/api/posts', postConntrol.getAllPost);
+router.post('/api/like-post/:id',authenticate, postConntrol.postLike);
+router.get('/api/posts', authenticate, postConntrol.getAllPost);
 
 
 module.exports = router;

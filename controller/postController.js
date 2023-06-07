@@ -1,19 +1,15 @@
 const jwt = require('jsonwebtoken');
 const Post = require('../model/Post');
 const Session = require('../model/Session');
-
-function tokenFunction(req) {
-    const token = req.headers.authorization.split(' ')[1];
-    const decode = jwt.decode(token);
-    return decode;
-}
+var ObjectId = require('mongoose').Types.ObjectId;
 class PostController {
 
     async createNewPost (req,res) {
         try {
-            const decode = tokenFunction(req);
+            const {userId} = req;
+            console.log(userId);
             const { name, description  } = req.body;
-            const post = new Post({name, description, userId: decode.id })
+            const post = new Post({name, description, userId })
             await post.save();
             return res.json({message: "Post added "})
         } catch (e) {
@@ -22,10 +18,10 @@ class PostController {
     }
     async postEdit(req, res) {
         try {
+            const {userId} = req;
             const requesteId = req.params.id;
-            const decode = tokenFunction(req)
             const post = await Post.findOne({_id: req.params.id});
-            if(post.userId === decode.id){
+            if(post.userId === userId){
                 await Post.findOneAndUpdate({_id: requesteId},{
                     $set: {
                         name: req.body.name,
@@ -46,6 +42,24 @@ class PostController {
             res.json(posts)
         } catch (e) {
             res.status(400).json({message: `Login error ${e}`})            
+        }
+    }
+    async postLike (req, res, next) {
+        try {
+            const requesteId = req.params.id;
+            const {userId} = req;
+            const post = await Post.findOne( {_id: new ObjectId(req.params.id) });
+            console.log(post);
+            if(post) {
+                console.log('create new like');
+                await post.push({ user_id:userId, status:req.body.status});
+                console.log(post, userId);
+                return res.json(post);
+            } else {
+                console.log('hello post');
+            }
+        } catch (err) {
+            res.send(`Error ${err}`)
         }
     }
 }
